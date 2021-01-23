@@ -2,34 +2,17 @@ package platform;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import com.google.gson.Gson;
 
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 @RestController
 public class CodeSharingPlatformController {
 
-    //private List<CodeSharingPlatformModel> codebase = new ArrayList<>();
-    CodeSharingPlatformModel codebase = new CodeSharingPlatformModel();
+    private List<CodeSharingPlatformModel> codebase = new ArrayList<>();
     private Gson gson = new Gson();
-
-    @GetMapping("/code")
-    public ResponseEntity<String> HeadersHTML() {
-        HttpHeaders responseHeaders = new HttpHeaders();
-        responseHeaders.set("Content-Type", "text/html");
-        responseHeaders.set("test", "test");
-
-        return ResponseEntity.ok()
-                .headers(responseHeaders)
-                .body(codebase.getCodeHTML());
-    }
 
     @GetMapping("/code/new")
     public ResponseEntity<String> getNewHTML() {
@@ -38,7 +21,7 @@ public class CodeSharingPlatformController {
 
         return ResponseEntity.ok()
                 .headers(responseHeaders)
-                .body(codebase.setCodeHTML());
+                .body(codebase.get(codebase.size() - 1).setCodeHTML());
     }
 
     @GetMapping("/api/code")
@@ -51,14 +34,13 @@ public class CodeSharingPlatformController {
                 .body(gson.toJson(codebase));
     }
 
-    @PostMapping(value = "/api/code/new", consumes = "application/json")
-    public void postJSON(@RequestBody String newCode, HttpServletResponse response) throws IOException {
-        CodeSharingPlatformModel newCodeObj = gson.fromJson(newCode, CodeSharingPlatformModel.class);
-        codebase.setCode(newCodeObj.getCode());
 
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
-        response.getWriter().write("{}");
+    @PostMapping(value = "/api/code/new", consumes = "application/json", produces = "application/json")
+    @ResponseBody
+    public String postJSON(@RequestBody String newCode){
+        Integer newId = codebase.size() == 0 ? 0 : codebase.get(codebase.size() - 1).getId() + 1;
+        codebase.add(new CodeSharingPlatformModel(newCode, newId));
+        return gson.toJson(newId);
     }
 
 }

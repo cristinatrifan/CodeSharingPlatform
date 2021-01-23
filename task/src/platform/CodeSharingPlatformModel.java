@@ -4,23 +4,18 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public class CodeSharingPlatformModel {
+
+    private Integer id = 0;
     private String code = "public static void main(String[] args) {SpringApplication.run(CodeSharingPlatform.class, args);}";
     private String date = LocalDateTime.now().toString();
 
-    public String getCode() {
-        return code;
+    public CodeSharingPlatformModel( ) {
+
     }
 
-    public void setCode(String code) {
+    public CodeSharingPlatformModel(String code, Integer id) {
         this.code = code;
-    }
-
-    public String getDate() {
-        return date;
-    }
-
-    public void setDate(String date) {
-        this.date = date;
+        this.id = id;
     }
 
     public String getCodeHTML() {
@@ -63,5 +58,29 @@ public class CodeSharingPlatformModel {
                 "}\n</script>" +
                 "</body>\n" +
                 "</html>\n";
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
     }
 }
