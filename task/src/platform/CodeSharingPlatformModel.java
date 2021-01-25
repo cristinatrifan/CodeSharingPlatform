@@ -3,7 +3,7 @@ package platform;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-public class CodeSharingPlatformModel {
+public class CodeSharingPlatformModel implements Comparable<CodeSharingPlatformModel> {
 
     private Integer id = 0;
     private String code = "public static void main(String[] args) {SpringApplication.run(CodeSharingPlatform.class, args);}";
@@ -18,7 +18,7 @@ public class CodeSharingPlatformModel {
         this.id = id;
     }
 
-    public String getCodeHTML() {
+/*    public String getCodeHTML() {
         return "<html>\n" +
                 "<head>\n" +
                 "    <title>Code</title>\n" +
@@ -32,10 +32,10 @@ public class CodeSharingPlatformModel {
                 "</html>\n";
     }
 
-    public String setCodeHTML() {
+    public String setCodeHTML(String title) {
         return "<html>\n" +
                 "<head>\n" +
-                "    <title>Create</title>\n" +
+                "    <title>"+ title +"</title>\n" +
                 "</head>\n" +
                 "<body>\n" +
                 "<textarea id=\"code_snippet\"> ... </textarea>" +
@@ -58,7 +58,7 @@ public class CodeSharingPlatformModel {
                 "}\n</script>" +
                 "</body>\n" +
                 "</html>\n";
-    }
+    }*/
 
     public Integer getId() {
         return id;
@@ -82,5 +82,10 @@ public class CodeSharingPlatformModel {
 
     public void setDate(String date) {
         this.date = date;
+    }
+
+    @Override
+    public int compareTo(CodeSharingPlatformModel o) {
+        return this.getDate().compareTo(o.getDate());
     }
 }
