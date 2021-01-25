@@ -1,6 +1,6 @@
 platform/CodeSharingPlatform.java
  platform.CodeSharingPlatform
-platform/CodeSharingPlatformModel.java
- platform.CodeSharingPlatformModel
 platform/CodeSharingPlatformController.java
  platform.CodeSharingPlatformController
+platform/CodeSharingPlatformModel.java
+ platform.CodeSharingPlatformModel
