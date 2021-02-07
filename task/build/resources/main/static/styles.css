@@ -1,0 +1,19 @@
+#load_date {
+    font-family: Arial, serif;
+    color: green;
+}
+
+#code_snippet {
+    font-family: Consolas, serif;
+    line-height: 13px;
+    width: 700px;
+    background-color: lightgray;
+    border: solid gray;
+    padding:10px 20px 10px 10px;
+    margin-top: 2px;
+}
+
+textarea {
+    width: 400px;
+    height: 150px;
+}
