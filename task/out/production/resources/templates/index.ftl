@@ -1,19 +1,9 @@
-<!DOCTYPE html>
 <html>
 <head>
-    <title>Home page</title>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${title}</title>
 </head>
-
 <body>
-<div class="container">
-    <div class="panel panel-primary">
-        <div class="panel-heading">
-            <h2>Home Page</h2>
-        </div>
-    </div>
-</div>
+<#list latestCode as key, code> <span id="load_date" > ${code.getDate()}  </span>
+<pre id="code_snippet" >${code.getCode()}</pre> </#list>
 </body>
-
 </html>

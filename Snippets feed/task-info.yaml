@@ -548,9 +548,21 @@ files:
 
     }
   learner_created: true
-- name: src/resources/templates/index.ftl
+- name: src/webapp/index.ftl
+  visible: true
+  learner_created: true
+- name: src/resources/static/send.js
+  visible: true
+  learner_created: true
+- name: src/resources/templates/create.html
+  visible: true
+  learner_created: true
+- name: src/resources/static/styles.css
   visible: true
   learner_created: true
 feedback_link: https://hyperskill.org/projects/130/stages/694/implement#comment
-status: Unchecked
+status: Solved
+feedback:
+  message: Congratulations!
+  time: Sat, 06 Feb 2021 21:46:57 UTC
 record: -1

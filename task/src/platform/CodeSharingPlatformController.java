@@ -1,78 +1,78 @@
 package platform;
 
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseEntity;
+import com.google.gson.reflect.TypeToken;
+import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import com.google.gson.Gson;
-
 import java.util.*;
 
-@RestController
+@Controller
 public class CodeSharingPlatformController {
 
-    private ArrayList <CodeSharingPlatformModel> codebase = new ArrayList<>();
+    private TreeMap<Integer, CodeSharingPlatformModel> codebase = new TreeMap<>();
     private Gson gson = new Gson();
 
-    @GetMapping(value = "/code/new", produces = "text/html")
-    public String getNewHTML(Model model) {
-
-        model.addAttribute("title", "Code");
-        model.addAttribute("date", codebase.get(codebase.size() - 1).getDate());
-        model.addAttribute("code", codebase.get(codebase.size() - 1).getCode());
-
-        return "index";
+    @GetMapping(value = "/code/new")
+    public String getNewHTML() {
+       return "create";
     }
 
     @GetMapping(value = "/code/{N}", produces = "text/html")
     public String GetCodeN(Model model, @PathVariable Integer N) {
 
+        SortedMap<Integer, CodeSharingPlatformModel> latestCode = codebase.subMap(N, N + 1);
+
         model.addAttribute("title", "Code");
-        model.addAttribute("date", codebase.get(N - 1).getDate());
-        model.addAttribute("code", codebase.get(N - 1).getCode());
+        model.addAttribute("latestCode", latestCode);
 
         return "index";
     }
 
     @GetMapping(value = "/code/latest", produces = "text/html")
-    public List<CodeSharingPlatformModel> GetCodeLatest() {
-        List<CodeSharingPlatformModel> latestCode = new ArrayList();
-        latestCode = codebase.subList(codebase.size() - 10, codebase.size());
-        Collections.sort(latestCode, Collections.reverseOrder());
-        //title = latest
-        return latestCode;
-    }
+    public String GetCodeLatest(Model model) {
+        SortedMap<Integer, CodeSharingPlatformModel> latestCode = new TreeMap<>();
 
-    @GetMapping("/api/code")
-    public ResponseEntity<String> HeadersJSON( ) {
-        HttpHeaders responseHeaders = new HttpHeaders();
-        responseHeaders.set("Content-Type", "application/json");
+        //get latest values in descending order (need all values - id, code and date; the template logic will handle the id value)
+        latestCode = (codebase.size() - 10) >= 0 ? codebase.descendingMap().headMap(codebase.size() - 10) : codebase.descendingMap();
 
-        return ResponseEntity.ok()
-                .headers(responseHeaders)
-                .body(gson.toJson(codebase));
+        model.addAttribute("title", "Latest");
+        model.addAttribute("latestCode", latestCode);
+
+        return "index";
     }
 
     @GetMapping("/api/code/{N}")
-    public CodeSharingPlatformModel GetApiCodeN(@PathVariable Integer N) {
-        return codebase.get(N - 1);
+    @ResponseBody
+    public CodeSharingPlatformModel GetApiCodeN(@PathVariable Integer N)
+    {
+        return codebase.get(N);
     }
 
     @GetMapping("/api/code/latest")
-    public List<CodeSharingPlatformModel> GetApiCodeLatest( ) {
-        List<CodeSharingPlatformModel> latestCode = new ArrayList();
-        latestCode = codebase.subList(codebase.size() - 10, codebase.size());
-        Collections.sort(latestCode, Collections.reverseOrder());
+    @ResponseBody
+    public Collection<CodeSharingPlatformModel> GetApiCodeLatest( ) {
+        Collection<CodeSharingPlatformModel> latestCode = new ArrayList<>();
+
+        //get latest values in descending order (without the key id values, only need the code and date values)
+        latestCode = (codebase.size() - 10) >= 0 ? codebase.descendingMap().headMap(codebase.size() - 10).values() : codebase.descendingMap().values();
+
         return latestCode;
 
     }
 
     @PostMapping(value = "/api/code/new", consumes = "application/json", produces = "application/json")
     @ResponseBody
-    public String postJSON(@RequestBody String newCode){
-        Integer newId = codebase.size() == 0 ? 0 : codebase.size();
-        codebase.add(new CodeSharingPlatformModel(newCode, newId));
-        return gson.toJson(codebase.get(newId).getId());
-    }
+    public HashMap<String, String> postJSON(@RequestBody String newCode){
+        Integer newId = codebase.size() + 1;
 
+        //get values from JSON object into map and save the code value of key code
+        Map<String, String> codeFromJson = gson.fromJson(newCode, new TypeToken<Map<String,String>>(){}.getType());
+        codebase.put(newId, new CodeSharingPlatformModel(codeFromJson.get("code")));
+
+        //return body in JSON format with an object that has an attribute "id" and value = the id of the created snippet
+        HashMap<String, String> id = new HashMap<>();
+        id.put("id", newId.toString());
+        return id;
+    }
 }
