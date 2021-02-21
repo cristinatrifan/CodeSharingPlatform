@@ -548,9 +548,6 @@ files:
 
     }
   learner_created: true
-- name: src/webapp/index.ftl
-  visible: true
-  learner_created: true
 - name: src/resources/static/send.js
   visible: true
   learner_created: true
@@ -565,4 +562,4 @@ status: Solved
 feedback:
   message: Congratulations!
   time: Sat, 06 Feb 2021 21:46:57 UTC
-record: -1
+record: 3

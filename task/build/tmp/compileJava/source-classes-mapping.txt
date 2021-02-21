@@ -1,3 +1,7 @@
+platform/CodeSharingPlatformService.java
+ platform.CodeSharingPlatformService
+platform/ICodeSharingPlatformService.java
+ platform.ICodeSharingPlatformService
 platform/CodeSharingPlatformController.java
  platform.CodeSharingPlatformController
  platform.CodeSharingPlatformController$1
@@ -5,3 +9,7 @@ platform/CodeSharingPlatform.java
  platform.CodeSharingPlatform
 platform/CodeSharingPlatformModel.java
  platform.CodeSharingPlatformModel
+platform/ICodeSharingPlatformProjection.java
+ platform.ICodeSharingPlatformProjection
+platform/CodeSharingPlatformRepository.java
+ platform.CodeSharingPlatformRepository

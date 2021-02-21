@@ -467,6 +467,203 @@ files:
         }
     }
   learner_created: false
+- name: src/resources/static/send.js
+  visible: true
+  text: |-
+    function send() {
+        let object = {
+            "code": document.getElementById("code_snippet").value
+        };
+
+        let json = JSON.stringify(object);
+
+        let xhr = new XMLHttpRequest();
+        xhr.open("POST", '/api/code/new', false)
+        xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
+        xhr.send(json);
+
+        if (xhr.status === 200) {
+            alert("Success!");
+        }
+    }
+  learner_created: true
+- name: src/platform/CodeSharingPlatformModel.java
+  visible: true
+  text: |
+    package platform;
+
+    import java.time.LocalDateTime;
+
+    public class CodeSharingPlatformModel  {
+
+        private String code = "public static void main(String[] args) {SpringApplication.run(CodeSharingPlatform.class, args);}";
+        private String date = LocalDateTime.now().toString();
+
+        public CodeSharingPlatformModel( ) {
+
+        }
+
+        public CodeSharingPlatformModel(String code) {
+            this.code = code;
+        }
+
+        public String getCode() {
+            return code;
+        }
+
+        public void setCode(String code) {
+            this.code = code;
+        }
+
+        public String getDate() {
+            return date;
+        }
+
+        public void setDate(String date) {
+            this.date = date;
+        }
+
+    }
+  learner_created: true
+- name: src/resources/templates/create.html
+  visible: true
+  text: |-
+    <!DOCTYPE html>
+    <html lang="en" xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8">
+        <title>Create</title>
+        <link rel="stylesheet" th:href="@{/styles.css}">
+        <script defer th:src="@{/send.js}" type="text/javascript"></script>
+    </head>
+    <body>
+    <button id="send_snippet" th:onclick="send()" type="submit">Submit</button>
+    <label for="code_snippet"></label>
+    <textarea class="create" id="code_snippet" placeholder="// Write your code here ...">
+    </textarea>
+    </body>
+    </html>
+  learner_created: true
+- name: src/resources/static/styles.css
+  visible: true
+  text: |-
+    #load_date {
+        font-family: Arial, serif;
+        color: green;
+    }
+
+    #code_snippet {
+        font-family: Consolas, serif;
+        line-height: 13px;
+        width: 700px;
+        background-color: lightgray;
+        border: solid gray;
+        padding:10px 20px 10px 10px;
+        margin-top: 2px;
+    }
+
+    textarea {
+        width: 400px;
+        height: 150px;
+    }
+  learner_created: true
+- name: src/platform/CodeSharingPlatformController.java
+  visible: true
+  text: |
+    package platform;
+
+    import com.google.gson.reflect.TypeToken;
+    import org.springframework.stereotype.Controller;
+    import org.springframework.ui.Model;
+    import org.springframework.web.bind.annotation.*;
+    import com.google.gson.Gson;
+    import java.util.*;
+
+    @Controller
+    public class CodeSharingPlatformController {
+
+        private TreeMap<Integer, CodeSharingPlatformModel> codebase = new TreeMap<>();
+        private Gson gson = new Gson();
+
+        @GetMapping(value = "/code/new")
+        public String getNewHTML() {
+           return "create";
+        }
+
+        @GetMapping(value = "/code/{N}", produces = "text/html")
+        public String GetCodeN(Model model, @PathVariable Integer N) {
+
+            SortedMap<Integer, CodeSharingPlatformModel> latestCode = codebase.subMap(N, N + 1);
+
+            model.addAttribute("title", "Code");
+            model.addAttribute("latestCode", latestCode);
+
+            return "index";
+        }
+
+        @GetMapping(value = "/code/latest", produces = "text/html")
+        public String GetCodeLatest(Model model) {
+            SortedMap<Integer, CodeSharingPlatformModel> latestCode = new TreeMap<>();
+
+            //get latest values in descending order (need all values - id, code and date; the template logic will handle the id value)
+            latestCode = (codebase.size() - 10) >= 0 ? codebase.descendingMap().headMap(codebase.size() - 10) : codebase.descendingMap();
+
+            model.addAttribute("title", "Latest");
+            model.addAttribute("latestCode", latestCode);
+
+            return "index";
+        }
+
+        @GetMapping("/api/code/{N}")
+        @ResponseBody
+        public CodeSharingPlatformModel GetApiCodeN(@PathVariable Integer N)
+        {
+            return codebase.get(N);
+        }
+
+        @GetMapping("/api/code/latest")
+        @ResponseBody
+        public Collection<CodeSharingPlatformModel> GetApiCodeLatest( ) {
+            Collection<CodeSharingPlatformModel> latestCode = new ArrayList<>();
+
+            //get latest values in descending order (without the key id values, only need the code and date values)
+            latestCode = (codebase.size() - 10) >= 0 ? codebase.descendingMap().headMap(codebase.size() - 10).values() : codebase.descendingMap().values();
+
+            return latestCode;
+
+        }
+
+        @PostMapping(value = "/api/code/new", consumes = "application/json", produces = "application/json")
+        @ResponseBody
+        public HashMap<String, String> postJSON(@RequestBody String newCode){
+            Integer newId = codebase.size() + 1;
+
+            //get values from JSON object into map and save the code value of key code
+            Map<String, String> codeFromJson = gson.fromJson(newCode, new TypeToken<Map<String,String>>(){}.getType());
+            codebase.put(newId, new CodeSharingPlatformModel(codeFromJson.get("code")));
+
+            //return body in JSON format with an object that has an attribute "id" and value = the id of the created snippet
+            HashMap<String, String> id = new HashMap<>();
+            id.put("id", newId.toString());
+            return id;
+        }
+    }
+  learner_created: true
+- name: src/platform/CodeSharingPlatformRepository.java
+  visible: true
+  learner_created: true
+- name: src/platform/ICodeSharingPlatformService.java
+  visible: true
+  learner_created: true
+- name: src/platform/CodeSharingPlatformService.java
+  visible: true
+  learner_created: true
+- name: src/platform/ICodeSharingPlatformProjection.java
+  visible: true
+  learner_created: true
 feedback_link: https://hyperskill.org/projects/130/stages/695/implement#comment
-status: Unchecked
+status: Solved
+feedback:
+  message: Congratulations!
+  time: Sun, 21 Feb 2021 13:51:40 UTC
 record: -1

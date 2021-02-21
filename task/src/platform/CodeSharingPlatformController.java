@@ -1,17 +1,26 @@
 package platform;
 
+import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import com.google.gson.Gson;
-import java.util.*;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Controller
 public class CodeSharingPlatformController {
 
-    private TreeMap<Integer, CodeSharingPlatformModel> codebase = new TreeMap<>();
-    private Gson gson = new Gson();
+    private ICodeSharingPlatformService newcodebase;
+
+    @Autowired
+    public CodeSharingPlatformController(ICodeSharingPlatformService newcodebase) {
+        this.newcodebase = newcodebase;
+    }
 
     @GetMapping(value = "/code/new")
     public String getNewHTML() {
@@ -21,7 +30,8 @@ public class CodeSharingPlatformController {
     @GetMapping(value = "/code/{N}", produces = "text/html")
     public String GetCodeN(Model model, @PathVariable Integer N) {
 
-        SortedMap<Integer, CodeSharingPlatformModel> latestCode = codebase.subMap(N, N + 1);
+        List<ICodeSharingPlatformProjection> latestCode = new ArrayList<>();
+        latestCode.add(newcodebase.getNthCodeSnippet(N));
 
         model.addAttribute("title", "Code");
         model.addAttribute("latestCode", latestCode);
@@ -31,10 +41,9 @@ public class CodeSharingPlatformController {
 
     @GetMapping(value = "/code/latest", produces = "text/html")
     public String GetCodeLatest(Model model) {
-        SortedMap<Integer, CodeSharingPlatformModel> latestCode = new TreeMap<>();
 
-        //get latest values in descending order (need all values - id, code and date; the template logic will handle the id value)
-        latestCode = (codebase.size() - 10) >= 0 ? codebase.descendingMap().headMap(codebase.size() - 10) : codebase.descendingMap();
+        //get latest values in descending order (only code and date)
+        List<ICodeSharingPlatformProjection> latestCode = newcodebase.getLatestCodeSnippets();
 
         model.addAttribute("title", "Latest");
         model.addAttribute("latestCode", latestCode);
@@ -44,18 +53,16 @@ public class CodeSharingPlatformController {
 
     @GetMapping("/api/code/{N}")
     @ResponseBody
-    public CodeSharingPlatformModel GetApiCodeN(@PathVariable Integer N)
+    public ICodeSharingPlatformProjection GetApiCodeN(@PathVariable Integer N)
     {
-        return codebase.get(N);
+        return newcodebase.getNthCodeSnippet(N);
     }
 
     @GetMapping("/api/code/latest")
     @ResponseBody
-    public Collection<CodeSharingPlatformModel> GetApiCodeLatest( ) {
-        Collection<CodeSharingPlatformModel> latestCode = new ArrayList<>();
-
+    public List<ICodeSharingPlatformProjection> GetApiCodeLatest( ) {
         //get latest values in descending order (without the key id values, only need the code and date values)
-        latestCode = (codebase.size() - 10) >= 0 ? codebase.descendingMap().headMap(codebase.size() - 10).values() : codebase.descendingMap().values();
+        List<ICodeSharingPlatformProjection> latestCode = newcodebase.getLatestCodeSnippets();
 
         return latestCode;
 
@@ -64,15 +71,14 @@ public class CodeSharingPlatformController {
     @PostMapping(value = "/api/code/new", consumes = "application/json", produces = "application/json")
     @ResponseBody
     public HashMap<String, String> postJSON(@RequestBody String newCode){
-        Integer newId = codebase.size() + 1;
-
+        Gson gson = new Gson();
         //get values from JSON object into map and save the code value of key code
         Map<String, String> codeFromJson = gson.fromJson(newCode, new TypeToken<Map<String,String>>(){}.getType());
-        codebase.put(newId, new CodeSharingPlatformModel(codeFromJson.get("code")));
+        String newId = newcodebase.createNewCodeSnippet(codeFromJson.get("code"));
 
         //return body in JSON format with an object that has an attribute "id" and value = the id of the created snippet
         HashMap<String, String> id = new HashMap<>();
-        id.put("id", newId.toString());
+        id.put("id", newId);
         return id;
     }
 }

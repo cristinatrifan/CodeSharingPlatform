@@ -21,4 +21,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-freemarker'
     compile "org.freemarker:freemarker:2.3.28"
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    runtimeOnly 'com.h2database:h2'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    compile('org.springframework.boot:spring-boot-starter-data-jpa')
 }
