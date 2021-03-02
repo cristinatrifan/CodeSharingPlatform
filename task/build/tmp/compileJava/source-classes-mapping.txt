@@ -4,7 +4,6 @@ platform/ICodeSharingPlatformService.java
  platform.ICodeSharingPlatformService
 platform/CodeSharingPlatformController.java
  platform.CodeSharingPlatformController
- platform.CodeSharingPlatformController$1
 platform/CodeSharingPlatform.java
  platform.CodeSharingPlatform
 platform/CodeSharingPlatformModel.java
